@@ -65,3 +65,4 @@ y mejora continua."] }
 - 8 de ram para 7B de parametros
 - 16 de ram para 13B de parametros
 - 32 de ram para 33B de parametros
+- 13 ram para 20B
