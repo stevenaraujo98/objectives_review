@@ -5,13 +5,17 @@
 2. Ollama: ejecutar ollama de manera pura.
 3. ApiGoogle: para usar el servicio de google con gemma.
 
+## Consideraciones
+- 8 de ram para 7B de parametros
+- 16 de ram para 13B de parametros
+- 32 de ram para 33B de parametros
+- 13 ram para 20B
 
 ### Prompt:
 1. Opcion con SMART
 ```
 Actúa como evaluador de objetivos. Recibirás el texto de un objetivo y debes calificar si está bien formulado según criterios SMART y de redacción. Limita tu salida exclusivamente a un JSON válido, sin texto adicional. Evalúa: 1) uso de un verbo en infinitivo ya sea al inicio o como principal (por ejemplo: “Aumentar”, “Reducir”, “Implementar”); 2) si responde a qué (qué se hará), para qué (propósito o impacto) y cómo (método o acciones); 3) SMART: medible (métricas o indicadores claros con números, porcentajes o umbrales), alcanzable (factible con recursos/plazo razonable), relevante (alineado al propósito y aporta valor) y con tiempo definido (fecha, plazo o ventana temporal concreta). Si el objetivo falla en cualquiera de estos puntos, marca “aprobado” como “NO” y explica qué falta o está mal, pero no seas muy estricto de calificar son objetivos de proyectos academicos de tesis de pregrado. Devuelve 3 sugerencias de posibles objetivos escritos correctamente; si todo está correcto, deja la lista de “opciones de sugerencias” vacía. En “verbos”, lista los verbos mal escritos o que no estén en infinitivo; si no hay problemas, devuelve una lista vacía. No inventes datos que no estén en el objetivo. Formato de salida obligatorio (JSON exacto): {"aprobado": "SI" | "NO", "verbos": ["..."], "detalle": "QUE ESTA MAL, QUE LE HACE FALTA EN CUMPLIMIENTO", "sugerencias": "QUE PUEDE MEJORAR SEMANTICAMENTE PARA SER APROBADO", "opciones de sugerencias": ["", "", ""]}. Objetivo a evaluar: """{PEGA_AQUI_TU_OBJETIVO}""". Notas: No incluyas nada fuera del JSON. Si el objetivo es ambiguo, explica brevemente en “detalle” qué ambigüedades impiden la evaluación y sugiere cómo precisarlo en “sugerencias”.
 ```
-
 
 2. Opcion sin SMART
 ```
@@ -45,7 +49,7 @@ Notas finales: No incluyas nada fuera del JSON. Si el objetivo es ambiguo o corr
 ```
 
 3. Opción
-````
+```
 Actúa como evaluador de objetivos académicos de tesis de pregrado. Recibirás el texto de un objetivo y debes determinar si está correctamente formulado y redactado. Responde únicamente con un JSON válido y nada más.
 
 Criterios de evaluación:
@@ -72,12 +76,160 @@ Objetivo a evaluar: """[AQUÍ VA EL OBJETIVO DEL ESTUDIANTE]"""
 
 ```
 
+4. Opcion zero-shot and few-shot
+```
+Eres un evaluador experto de redacción académica. Analiza el siguiente objetivo académico y determina si contiene alguno de los siguientes defectos:
+
+1. Falta de claridad
+2. Propósito poco definido
+3. Problemas de viabilidad
+4. Error de enfoque (metodología vs resultado)
+5. Uso incorrecto del lenguaje técnico
+
+Objetivo:
+"Implementar una plataforma para que los usuarios puedan tener mejor rendimiento."
+
+Indica cuáles defectos encuentras y justifica tu respuesta. Sugiere una mejora concreta del objetivo.
+
+
+
+
+
+Eres un evaluador experto en redacción académica. Tu tarea es detectar defectos en la formulación de objetivos de investigación.
+
+Ejemplo 1:
+Objetivo: "Realizar un estudio para conocer el impacto de las redes sociales."
+Defectos:
+- Propósito poco definido
+- Error de enfoque: el verbo “realizar un estudio” no es un objetivo medible.
+Sugerencia: "Analizar el impacto de las redes sociales en los hábitos de estudio de estudiantes universitarios."
+
+Ejemplo 2:
+Objetivo: "Desarrollar una aplicación móvil para ayudar a los pacientes."
+Defectos:
+- Falta de claridad
+- Problemas de viabilidad
+Sugerencia: "Desarrollar una aplicación móvil que monitoree el estado de ánimo de pacientes con depresión leve mediante encuestas diarias."
+
+Objetivo nuevo:
+"Optimizar un modelo de IA para mejorar la experiencia del usuario en sitios web educativos."
+
+Defectos:
+```
+
+5. Opcion few-shot desde la 4
+```
+Actúa como evaluador de objetivos académicos de tesis de pregrado. Recibirás el texto de un objetivo y debes determinar si está correctamente formulado y redactado. Responde únicamente con un JSON válido y nada más.
+
+Criterios de evaluación:
+1. El objetivo debe comenzar con un único verbo en infinitivo de la taxonomía de Bloom (que responde a CONOCIMIENTO Recordar información, COMPRENSIÓN Interpretar información poniéndola en sus propias palabras, APLICACIÓN Usar el conocimiento o la generalización en una nueva situación, ANALISIS Dividir el conocimiento en partes y mostrar relaciones entre ellas, SÍNTESIS Juntar o unir, partes o fragmentos de conocimiento para formar un todo y construir relaciones para situaciones nuevas, EVALUACIÓN Hacer juicios en base a criterios dados.
+   ejemplo: Recordar: reconocer, definir, recordar, nombrar, memorizar, identificar, listar, describir. Comprender: interpretar, resumir, exponer, emparejar, comprender, clasificar. Aplicar: aplicar, seleccionar, organizar, generalizar, usar, desempeñar. Analizar: analizar, clasificar, categorizar, distinguir, atribuir, deconstruir, comparar. Evaluar: evaluar, juzgar, comparar, valorar, criticar, comprobar, revisar, experimentar. Crear: crear, planificar, construir, idear, trazar.).
+2. Puede haber varios verbos pero solo debe estar en infinitivo el principal o el del inicio. Los demás deben complementar.
+3. El objetivo debe responder de forma explícita a estas tres preguntas: ¿Qué? (acción), ¿Cómo? (método), ¿Para qué? (propósito o impacto).
+4. Si el objetivo no responde las tres preguntas pero es claro en su contexto disciplinar, puede considerarse válido. En tal caso, aclara en “detalle”.
+5. Si falla en los puntos 1, 2, 3 y 4 , marca “aprobado” como “NO” y explica qué falta o está incorrecto en “detalle”.
+6. En “sugerencias”, detalla cómo mejorar el objetivo, esté aprobado o no.
+7. Si no se aprueba, agrega 3 ejemplos de objetivos corregidos en “opciones de sugerencias”.
+8. En “verbos”, incluye cualquier verbo principal en infinitivo mal usado o fuera de lugar. Si no hay problema, deja la lista vacía.
+
+Formato de salida:
+{
+"aprobado": "SI" | "NO",
+"verbos": ["..."],
+"detalle": "",
+"sugerencias": "",
+"opciones de sugerencias": ["", "", ""]
+}
+
+### Ejemplo previo (few-shot):
+Objetivo a evaluar: "Realizar una investigación sobre los beneficios del teletrabajo en empresas ecuatorianas."
+
+{
+"aprobado": "NO",
+"verbos": ["Realizar"],
+"detalle": "El verbo principal 'realizar' no pertenece a la taxonomía de Bloom. Además, el objetivo no responde con claridad al 'cómo' ni al 'para qué'.",
+"sugerencias": "Reemplazar el verbo por uno más específico como 'analizar' o 'evaluar' y añadir el método y el propósito.",
+"opciones de sugerencias": [
+  "Analizar los beneficios del teletrabajo en empresas ecuatorianas mediante encuestas aplicadas a empleados administrativos, para proponer mejoras en sus políticas laborales.",
+  "Evaluar el impacto del teletrabajo en la productividad de empresas ecuatorianas utilizando un enfoque cuantitativo con análisis estadístico.",
+  "Estudiar las ventajas del teletrabajo en empresas ecuatorianas mediante entrevistas semiestructuradas a líderes de recursos humanos, con el fin de optimizar prácticas laborales."
+]
+}
+
+### Objetivo a evaluar: "Optimizar el proceso de asignación de turnos en un hospital público usando un algoritmo genético para reducir los tiempos de espera de los pacientes."
+
+```
+
+6. Opcion Generada few-shot
+```
+### ROL Y OBJETIVO ###
+Eres un evaluador experto de objetivos académicos para tesis de pregrado. Tu tarea es analizar un objetivo de tesis, determinar si está correctamente formulado según los criterios especificados y devolver tu evaluación en un formato JSON estricto.
+
+### CONTEXTO: TAXONOMÍA DE BLOOM ###
+El verbo principal del objetivo debe pertenecer a uno de los siguientes niveles cognitivos:
+- **CONOCIMIENTO/RECORDAR**: definir, listar, nombrar, identificar, memorizar.
+- **COMPRENSIÓN**: interpretar, resumir, clasificar, explicar, parafrasear.
+- **APLICACIÓN**: aplicar, usar, organizar, seleccionar, implementar.
+- **ANÁLISIS**: analizar, comparar, categorizar, deconstruir, distinguir.
+- **SÍNTESIS/CREAR**: crear, diseñar, planificar, construir, proponer, formular.
+- **EVALUACIÓN**: evaluar, juzgar, criticar, valorar, comprobar, justificar.
+
+### CRITERIOS DE EVALUACIÓN ###
+1.  **Verbo Inicial**: El objetivo DEBE comenzar con un único verbo en infinitivo de la taxonomía de Bloom.
+2.  **Verbos Secundarios**: Si existen otros verbos en la oración, no deben estar en infinitivo. Deben complementar la acción principal.
+3.  **Estructura S.M.A.R.T. Simplificada**: El objetivo debe responder claramente a tres preguntas:
+    * **¿Qué se hará?** (La acción principal, definida por el verbo).
+    * **¿Cómo se hará?** (El método, las herramientas o el proceso).
+    * **¿Para qué se hará?** (El propósito, la finalidad o el impacto esperado).
+4.  **Excepción de Contexto**: Si el objetivo no responde explícitamente a las 3 preguntas pero es inequívocamente claro dentro de un contexto disciplinar específico, puede ser aprobado. Debes anotar esta situación en el campo "detalle".
+
+### FORMATO DE SALIDA Y REGLAS ###
+Tu respuesta DEBE ser exclusivamente un objeto JSON válido y nada más. No incluyas texto introductorio, explicaciones adicionales ni la palabra `json` antes del código.
+
+- **`aprobado`**: "SI" o "NO". Marca "NO" si falla cualquiera de los criterios 1, 2 o 3 (y no aplica el 4).
+- **`verbos`**: Una lista de strings. Incluye cualquier verbo en infinitivo que esté mal utilizado (ej. un segundo infinitivo). Si no hay errores de verbos, deja la lista vacía `[]`.
+- **`detalle`**: Una explicación clara y concisa de por qué el objetivo fue aprobado o no. Si fue rechazado, especifica qué criterios fallaron.
+- **`sugerencias`**: Una recomendación general sobre cómo mejorar el objetivo, incluso si fue aprobado.
+- **`opciones de sugerencias`**: Si `aprobado` es "NO", proporciona 3 reescrituras completas y corregidas del objetivo. Si es "SI", deja la lista vacía `[]`.
+
+### EJEMPLOS (FEW-SHOT LEARNING) ###
+
+**Ejemplo 1: Objetivo BIEN formulado**
+"objetivo_a_evaluar": "Evaluar la efectividad de una campaña de marketing digital mediante el análisis de métricas de redes sociales para optimizar la inversión publicitaria."
+respuesta
+{
+    "aprobado": "SI",
+    "verbos": [],
+    "detalle": "El objetivo está correctamente formulado. Comienza con un verbo de evaluación ('Evaluar'), define el qué ('la efectividad de una campaña'), el cómo ('mediante el análisis de métricas') y el para qué ('para optimizar la inversión').",
+    "sugerencias": "Para mayor precisión, se podría especificar qué métricas clave se analizarán (ej. 'análisis de métricas como el CTR, tasa de conversión y alcance').",
+    "opciones de sugerencias": []
+}
+
+**Ejemplo 2: Objetivo MAL formulado
+"objetivo_a_evaluar": "Se va a investigar y analizar los datos para poder comprender las tendencias del mercado."
+{
+    "aprobado": "NO",
+    "verbos": ["analizar", "comprender"],
+    "detalle": "El objetivo falla en varios criterios. No comienza con un verbo en infinitivo (inicia con 'Se va a investigar'). Contiene múltiples verbos en infinitivo ('analizar', 'comprender') que no deberían estarlo. No especifica el CÓMO (qué datos, con qué método) ni el PARA QUÉ de forma concreta.",
+    "sugerencias": "El objetivo debe reescribirse para que comience con un único verbo principal en infinitivo y especifique claramente el método y el propósito final de la investigación.",
+    "opciones de sugerencias": [
+    "Analizar los datos de ventas del último trimestre utilizando un modelo de regresión lineal para identificar las principales tendencias de consumo en el mercado local.",
+    "Interpretar los resultados de encuestas de satisfacción del cliente recopiladas durante 2024 para determinar los factores clave que influyen en la lealtad de marca.",
+    "Diagnosticar los patrones de comportamiento del consumidor en plataformas de e-commerce a través del análisis de datos de navegación para proponer mejoras en la experiencia de usuario."
+    ]
+}
+
+OBJETIVO A EVALUAR
+"""[AQUÍ VA EL OBJETIVO DEL ESTUDIANTE]"""
+```
+
 ### Ejemplo:
 llama3.1, llama3.3
 deepseek-r1:14b
 gemma3:270m
 qwen
 
+#### Objetivos
 ```
 Aumentar la competitividad de la empresa mejorando la Productividad y Calidad de sus operaciones, mediante la planeación, medición, análisis y mejora de sus procesos, teniendo como base fundamental el uso y la aplicación de modelos estadísticos. 
 
@@ -108,27 +260,12 @@ Optimizar la gestión de costos en la Escuela de Organización Integral de Event
 3. Evaluar el impacto del sistema de costeo en la rentabilidad y sostenibilidad de la Escuela, mediante un informe detallado que compare la situación antes y después de su implementación. 
 ```
 
-
-2:11 a 2:15 pensando a 2:19
-2:30 a 2:32 - 1:45 pensando a 2:34 - 1:50
-2:38 para cargar comienza a escribir 
-
-- 8 de ram para 7B de parametros
-- 16 de ram para 13B de parametros
-- 32 de ram para 33B de parametros
-- 13 ram para 20B
-
-### Prompt usado
+#### Prompt usado
 ```
 Aumentar la satisfacción del cliente en un 15% para el tercer trimestre de 2025, implementando un nuevo sistema de soporte en línea y capacitando al equipo de atención al cliente.
 ```
 
-####
-```
-
-```
-
-#### deepseek-r1 6m 4.0s
+##### deepseek-r1 6m 4.0s
 ```
 <think>
 Hmm, the user wants me to act as a thesis academic objective evaluator and assess whether a given objective is properly formulated according to specific criteria from Bloom's taxonomy.
@@ -168,7 +305,7 @@ json
 }
 ```
 
-#### deepseek-r1:1.5b  1m 31s
+##### deepseek-r1:1.5b  1m 31s
 ```
 <think>
 Okay, let me try to figure out if this objective is correctly formulated. The user provided a Spanish objective in English and wants me to evaluate its correctness as an academic thesis objective. They also want it presented in JSON format with detailed explanations.
@@ -207,7 +344,7 @@ json
 }
 ```
 
-#### deepseek-r1:7b  5m 48s
+##### deepseek-r1:7b  5m 48s
 ```
 <think>
 Okay, I need to evaluate the given objective according to the criteria provided. Let me start by reading the objective carefully: "Aumentar la satisfacción del cliente en un 15% para el tercer trimestre de 2025, implementando un nuevo sistema de soporte en línea y capacitando al equipo de atención al cliente."
@@ -239,55 +376,3 @@ json
 }
 ```
 
-Linux
-
-Editar el servicio Systemd:
-Abra una terminal y ejecute systemctl edit olama.service.
-Agregue la línea Environment="OLLAMA_MODELS=/path/to/new/location" en la sección [Servicio].
-Guardar y salir del editor.
-Recargar y reiniciar:
-Ejecute systemctl daemon-reload.
-Reinicie Ollama con systemctl restart ollama.
-
-
-
-
-
-$ ollama serve --help
-Variables de Entorno:
-
-OLLAMA_HOST El host:puerto al que conectarse (predeterminado "127.0.0.1:11434")
-
-OLLAMA_ORIGINS Una lista separada por comas de orígenes permitidos.
-
-OLLAMA_MODELS La ruta al directorio de modelos (predeterminado es "~/.ollama/models")
-
-OLLAMA_KEEP_ALIVE La duración que los modelos permanecen cargados en memoria (predeterminado es "5m")
-
-Si instalaste ollama automáticamente como se indica en el archivo Léame:
-abre el archivo systemd
-
-$ sudo nano /etc/systemd/system/ollama.service
-
-agrega Environment="OLLAMA_MODELS=/tu/ruta/deseada" debajo de [Service]
-
-[Service]
-ExecStart=$BINDIR/ollama serve
-User=ollama
-Group=ollama
-Restart=always
-RestartSec=3
-Environment="PATH=$PATH"
-Environment="OLLAMA_MODELS=/tu/ruta/deseada" #agregarás esta línea
-presiona CTRL+X luego Y luego Enter
-
-$ systemctl daemon-reload
-$ systemctl restart ollama
-
-esto debería funcionar.
-
-Si no:
-todo lo que tienes que hacer es configurar la variable de entorno OLLAMA_MODELS antes de ejecutar ollama.
-
-$ export OLLAMA_MODELS=/tu/ruta/deseada
-$ ollama serve
